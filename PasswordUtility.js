@@ -1,7 +1,9 @@
-// PasswordUtility.js
+// auth.js
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { secretKey } = require('./config');
 
-const saltRounds = 10; // Počet iterací pro hašování
+const saltRounds = 10;
 
 async function hashPassword(plaintextPassword) {
   const hashedPassword = await bcrypt.hash(plaintextPassword, saltRounds);
@@ -13,4 +15,19 @@ async function comparePassword(plaintextPassword, hashedPassword) {
   return isValidPassword;
 }
 
-module.exports = { hashPassword, comparePassword };
+function generateToken(user) {
+  const token = jwt.sign({ userId: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
+  return token;
+}
+
+function verifyToken(token) {
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    return decoded;
+  } catch (error) {
+    console.error('Chyba při ověřování tokenu:', error);
+    return null;
+  }
+}
+
+module.exports = { hashPassword, comparePassword, generateToken, verifyToken };

@@ -1,48 +1,32 @@
-// server.js nebo app.js (backend-my-app)
+// server.js
+require('dotenv').config();
 const express = require('express');
-const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const { UserModel, UserPasswordModel } = require('./models'); 
+const { hashPassword, comparePassword } = require('./PasswordUtility');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
+const MONGODB_URL = process.env.MONGODB_URL;
 
-mongoose.connect('mongodb+srv://Dantik147:fTMb7RhJdAkqCsOB@cluster0.jnfmix6.mongodb.net/Users', {
+mongoose.connect(MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const UsersPasswordSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
-});
-
-const UserPasswordModel = mongoose.model('UserPassword', UsersPasswordSchema);
-
-const UserSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
-});
-
-const UserModel = mongoose.model('User', UserSchema);
-
+// routes.js
 app.post('/registerUser', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    const hashedPassword = await hashPassword(password);
 
-    // Hašování hesla
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Uložení uživatele s hašovaným heslem do databáze Users
     const newUser = new UserModel({ name, email, password: hashedPassword });
     const savedUser = await newUser.save();
 
-    // Uložení uživatele s původním heslem do databáze UserPassword
     const newUserPassword = new UserPasswordModel({ name, email, password });
     const savedUserPassword = await newUserPassword.save();
 
@@ -53,6 +37,33 @@ app.post('/registerUser', async (req, res) => {
   } catch (error) {
     console.error('Chyba při registraci uživatele:', error);
     res.status(500).json({ error: 'Chyba při registraci uživatele.' });
+  }
+});
+
+app.post('/loginUser', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Získání uživatele podle e-mailu
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Uživatel s daným e-mailem nebyl nalezen.' });
+    }
+
+    // Porovnání zadaného hesla s hašovaným heslem uloženým v databázi
+    const isPasswordValid = await comparePassword(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Neplatné heslo.' });
+    }
+
+    // Zde můžete provádět další kroky po úspěšném přihlášení, např. vytvoření a poslání JWT tokenu
+
+    res.status(200).json({ message: 'Přihlášení úspěšné.' });
+  } catch (error) {
+    console.error('Chyba při přihlašování uživatele:', error);
+    res.status(500).json({ error: 'Chyba při přihlašování uživatele.' });
   }
 });
 
