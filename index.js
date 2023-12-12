@@ -67,7 +67,7 @@ app.post('/loginUser', async (req, res) => {
   }
 });
 
-app.get('/getUsers', async (req, res) => {
+/*app.get('/getUsers', async (req, res) => {
   try {
     const users = await UserModel.find({});
     res.json(users);
@@ -76,7 +76,7 @@ app.get('/getUsers', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Chyba při získávání uživatelů' });
   }
-});
+});*/
 
 const connection = mongoose.connection;
 connection.once('open', () => {
