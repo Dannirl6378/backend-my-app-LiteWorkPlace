@@ -1,4 +1,6 @@
 // PasswordUtility.js
+const { UserModel } = require("./models");
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { secretKey } = require("./config");
@@ -14,7 +16,7 @@ async function hashPassword(plaintextPassword) {
 
 router.post("/hashPassword", async (req, res) => {
   const { password } = req.body;
-  console.log('Received request to hash password:', password);
+  console.log("zadost o hash hesla:", password);
   const hashedPassword = await hashPassword(password);
   res.json({ hashedPassword });
 });
@@ -26,6 +28,29 @@ async function comparePassword(plaintextPassword, hashedPassword) {
   );
   return isValidPassword;
 }
+
+router.post("/comparePassword", async (req, res) => {
+  const { password } = req.body;
+  console.log("zadost o overeni hesla:", password);
+
+  // Získání uživatele podle e-mailu
+  const user = await UserModel.findOne({ email: req.body.email });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ error: "Uživatel s daným e-mailem nebyl nalezen." });
+  }
+
+  // Porovnání zadaného hesla s hašovaným heslem uloženým v databázi
+  const isPasswordValid = await comparePassword(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ error: "Neplatné heslo." });
+  }
+
+  res.json({ message: "Přihlášení úspěšné." });
+});
 
 function generateToken(user) {
   const token = jwt.sign({ userId: user._id, email: user.email }, secretKey, {
