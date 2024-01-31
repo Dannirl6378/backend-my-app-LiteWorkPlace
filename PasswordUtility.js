@@ -1,5 +1,5 @@
 // PasswordUtility.js
-const { UserModel } = require("./models");
+const { UserModel, UserPasswordModel } = require("./models");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -21,35 +21,37 @@ router.post("/hashPassword", async (req, res) => {
   res.json({ hashedPassword });
 });
 
-async function comparePassword(plaintextPassword, hashedPassword) {
+async function comparePassword(plaintextPassword, email) {
+  const user = await UserPasswordModel.findOne({ email: email });
+  if (!user) {
+    return { error: "Uživatel s daným e-mailem nebyl nalezen." };
+  }
   const isValidPassword = await bcrypt.compare(
     plaintextPassword,
-    hashedPassword
+    user.password
   );
-  return isValidPassword;
+  if (!isValidPassword) {
+    return { success: false, message: "Neplatné heslo." };
+  }
+
+  return { success: true, message: "Přihlášení úspěšné." };
 }
 
 router.post("/comparePassword", async (req, res) => {
-  const { password } = req.body;
-  console.log("zadost o overeni hesla:", password);
+  const { password, email } = req.body;
+  console.log("zadost o overeni hesla:", password, email);
 
   // Získání uživatele podle e-mailu
-  const user = await UserModel.findOne({ email: req.body.email });
-
-  if (!user) {
-    return res
-      .status(404)
-      .json({ error: "Uživatel s daným e-mailem nebyl nalezen." });
-  }
-
+  //const user = await UserModel.findOne({ email: email });
+  //console.log("useremail", user.email);
   // Porovnání zadaného hesla s hašovaným heslem uloženým v databázi
-  const isPasswordValid = await comparePassword(password, user.password);
+  const isPasswordValid = await comparePassword(password, email);
 
-  if (!isPasswordValid) {
-    return res.status(401).json({ error: "Neplatné heslo." });
+  if (isPasswordValid.error) {
+    return res.status(401).json({ error: isPasswordValid.error });
   }
 
-  res.json({ message: "Přihlášení úspěšné." });
+  res.json({ message: isPasswordValid.message });
 });
 
 function generateToken(user) {
