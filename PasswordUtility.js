@@ -1,5 +1,5 @@
 // PasswordUtility.js
-const { UserModel, UserPasswordModel } = require("./models");
+const { UserPasswordModel } = require("./models");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -36,6 +36,22 @@ async function comparePassword(plaintextPassword, email) {
 
   return { success: true, message: "Přihlášení úspěšné." };
 }
+
+async function getUser(email) {
+  const user = await UserPasswordModel.findOne({ email: email });
+  if (!user) {
+    return { error: "Uživatel s daným e-mailem nebyl nalezen." };
+  }
+  return user.name;
+}
+
+router.post("/getUser", async (req, res) => {
+  const email = req.body;
+  const user = await getUser(email);
+  if (user) {
+    res.json({ message: user.message });
+  }
+});
 
 router.post("/comparePassword", async (req, res) => {
   const { password, email } = req.body;
@@ -76,5 +92,6 @@ module.exports = {
   comparePassword,
   generateToken,
   verifyToken,
+  getUser,
   router,
 };
