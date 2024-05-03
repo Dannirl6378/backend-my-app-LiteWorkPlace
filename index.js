@@ -1,11 +1,11 @@
 // index.js
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { UserModel, UserPasswordModel } = require("./models");
 const { hashPassword, comparePassword } = require("./PasswordUtility");
 const passwordUtilityRouter = require("./PasswordUtility").router;
+require('dotenv').config({path:"./config.env"});
 
 const app = express();
 app.use(cors());
