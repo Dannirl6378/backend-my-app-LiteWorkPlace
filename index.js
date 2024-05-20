@@ -5,7 +5,15 @@ const mongoose = require("mongoose");
 const { UserModel, UserPasswordModel } = require("./models");
 const { hashPassword, comparePassword } = require("./PasswordUtility");
 const passwordUtilityRouter = require("./PasswordUtility").router;
-require('dotenv').config({path:"./config.env"});
+
+
+require('dotenv').config({ path: './config.env' });
+if (!process.env.PORT || !process.env.MONGODB_URL) {
+  console.error("Chyba: Konfigurační soubor config.env nebyl správně načten.");
+  process.exit(1);
+}
+
+
 
 const app = express();
 app.use(cors());
