@@ -54,7 +54,6 @@ router.post("/getUser", async (req, res) => {
 
 router.post("/comparePassword", async (req, res) => {
   const { password, email } = req.body;
-  console.log("zadost o overeni hesla:", password, email);
 
   const isPasswordValid = await comparePassword(password, email);
 
