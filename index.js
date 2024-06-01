@@ -21,8 +21,6 @@ app.use(express.json());
 
 app.use("/api/passwordUtility", passwordUtilityRouter);
 
-console.log("PasswordUtility",passwordUtilityRouter);
-
 const PORT = process.env.PORT || 3001;
 const MONGODB_URL = process.env.MONGODB_URL;
 
@@ -44,7 +42,6 @@ app.post("/registerUser", async (req, res) => {
     const savedUserPassword = await newUserPassword.save();
 
     console.log("Uživatel byl úspěšně zaregistrován:", savedUser);
-    console.log("Uživatel s původním heslem:", savedUserPassword);
 
     res.status(201).json({ message: "Uživatel byl úspěšně zaregistrován." });
   } catch (error) {

@@ -16,7 +16,6 @@ async function hashPassword(plaintextPassword) {
 
 router.post("/hashPassword", async (req, res) => {
   const { password } = req.body;
-  console.log("zadost o hash hesla:", password);
   const hashedPassword = await hashPassword(password);
   res.json({ hashedPassword });
 });
