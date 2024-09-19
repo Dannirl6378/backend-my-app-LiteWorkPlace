@@ -75,28 +75,22 @@ app.post("/loginUser", async (req, res) => {
   }
 });
 
-app.get("/getUsers", async (req, res) => {
+app.get('/getUsers', async (req, res) => {
   try {
-    const users = await UserModel.find({});
-    res.json(users);
-    console.log("Seznam uživatelů:", users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Chyba při získávání uživatelů" });
+      const users = await UserModel.find(); // MongoDB or similar query
+      if (!users) {
+          return res.status(404).json({ error: "No users found" });
+      }
+      res.status(200).json(users);
+  } catch (error) {
+      console.error("Error fetching users: ", error);
+      res.status(500).json({ error: "Server error" });
   }
 });
 
-const connection = mongoose.connection;
-connection.once("open", () => {
-  console.log("Connected to MongoDB");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
 // API Endpoint pro získání uživatelských dat podle emailu
-app.get("/api/user/:email", async (req, res) => {
+app.get("/api/user/email", async (req, res) => {
   const { email } = req.params;
   try {
     const user = await UserModel.findOne({ email });
@@ -131,4 +125,12 @@ app.post("/api/user/update", async (req, res) => {
     console.error("Chyba při aktualizaci uživatelských dat:", err);
     res.status(500).json({ error: "Chyba serveru." });
   }
+});
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("Connected to MongoDB");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
