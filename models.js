@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   akceCalender: [{ type: String }],
-  rQuillText: { type: String },
+  QuillText: { type: String },
   toDoList: [{ type: String }],
 });
 const UserModel = mongoose.model(`UserSchema`, UserSchema);

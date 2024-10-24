@@ -2,23 +2,21 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const { UserModel, UserPasswordModel,UserSchemaData } = require("./models");
+const { UserModel, UserPasswordModel } = require("./models");
 const { hashPassword, comparePassword } = require("./PasswordUtility");
 const passwordUtilityRouter = require("./PasswordUtility").router;
 
-
-require('dotenv').config({ path: './config.env' });
+require("dotenv").config({ path: "./config.env" });
 if (!process.env.PORT || !process.env.MONGODB_URL) {
   console.error("Chyba: Konfigurační soubor config.env nebyl správně načten.");
   process.exit(1);
 }
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/passwordUtility", passwordUtilityRouter);
+app.use("/passwordUtility", passwordUtilityRouter);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URL = process.env.MONGODB_URL;
@@ -50,6 +48,7 @@ app.post("/registerUser", async (req, res) => {
 });
 
 app.post("/loginUser", async (req, res) => {
+  console.log("Received login data:", req.body);
   try {
     const { email, password } = req.body;
 
@@ -75,37 +74,42 @@ app.post("/loginUser", async (req, res) => {
   }
 });
 
-app.get('/getUsers', async (req, res) => {
+app.get("/getUsers", async (req, res) => {
   try {
-      const users = await UserModel.find(); // MongoDB or similar query
-      if (!users) {
-          return res.status(404).json({ error: "No users found" });
-      }
-      res.status(200).json(users);
+    const users = await UserModel.find();
+    if (!users) {
+      return res.status(404).json({ error: "No users found" });
+    }
+    res.status(200).json(users);
   } catch (error) {
-      console.error("Error fetching users: ", error);
-      res.status(500).json({ error: "Server error" });
+    console.error("Error fetching users: ", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-
 // API Endpoint pro získání uživatelských dat podle emailu
-app.get("/api/user/email", async (req, res) => {
+app.get("/getUsers/:email", async (req, res) => {
   const { email } = req.params;
   try {
-    const user = await UserModel.findOne({ email });
+    // Use a case-insensitive regex to match the email
+    const user = await UserModel.findOne({
+      email: { $regex: new RegExp(email, "i") },
+    });
+    console.log("userEmail", user);
+
     if (!user) {
       return res.status(404).json({ error: "Uživatel nenalezen." });
     }
+
     res.json(user);
   } catch (err) {
-    console.error("Chyba při získávání uživatelských dat:", err);
+    console.error("Chyba při získávání uživatelských dat1:", err);
     res.status(500).json({ error: "Chyba serveru." });
   }
 });
 
 // API Endpoint pro aktualizaci uživatelských dat
-app.post("/api/user/update", async (req, res) => {
+app.post("/user/update", async (req, res) => {
   const { email, akceCalander, Quilltext, todoList } = req.body;
   try {
     const user = await UserModel.findOne({ email });
@@ -122,7 +126,7 @@ app.post("/api/user/update", async (req, res) => {
     await user.save();
     res.json({ message: "Uživatelská data byla úspěšně aktualizována." });
   } catch (err) {
-    console.error("Chyba při aktualizaci uživatelských dat:", err);
+    console.error("Chyba při aktualizaci uživatelských dat2:", err);
     res.status(500).json({ error: "Chyba serveru." });
   }
 });
