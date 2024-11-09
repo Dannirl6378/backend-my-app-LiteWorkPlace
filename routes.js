@@ -1,118 +1,128 @@
+// routes.js
 const express = require("express");
-const { UserModel } = require("./models");
+const { UserModel, UserPasswordModel } = require("./models");
 const { hashPassword, comparePassword } = require("./PasswordUtility");
 
 const router = express.Router();
 
-// User Registration
+// Registrace uživatele
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if email already exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: "Email is already in use." });
+      return res.status(409).json({ error: "Email již je používán." });
     }
 
-    // Hash password
     const hashedPassword = await hashPassword(password);
 
-    // Create new user
-    const newUser = new UserModel({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
+    const newUser = new UserModel({ name, email, password: hashedPassword });
     await newUser.save();
 
-    res.status(201).json({ message: "User registered successfully." });
+    const newUserPassword = new UserPasswordModel({ name, email, password });
+    await newUserPassword.save();
+
+    res.status(201).json({ message: "Uživatel byl úspěšně zaregistrován." });
   } catch (error) {
-    console.error("Error registering user:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error during registration." });
+    console.error("Chyba při registraci uživatele:", error);
+    res.status(500).json({ error: "Chyba při registraci uživatele." });
   }
 });
 
-// User Login
+// Přihlášení uživatele
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find user by email
     const user = await UserModel.findOne({ email });
+    console.error("loginUser notfound", user);
 
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: "Uživatel nenalezen." });
     }
 
-    // Verify password
     const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid password." });
+      return res.status(401).json({ error: "Neplatné heslo." });
     }
 
-    // Optionally, generate a JWT token here for session management
-
-    res.status(200).json({ message: "Login successful." });
+    res.status(200).json({ message: "Přihlášení úspěšné." });
   } catch (error) {
-    console.error("Error logging in user:", error);
-    res.status(500).json({ error: "Internal server error during login." });
+    console.error("Chyba při přihlašování uživatele:", error);
+    res.status(500).json({ error: "Chyba při přihlašování uživatele." });
   }
 });
 
-// Get All Users
+// Získání všech uživatelů
 router.get("/all", async (req, res) => {
   try {
     const users = await UserModel.find({});
     res.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Error fetching users." });
+    console.error("Chyba při získávání uživatelů:", error);
+    res.status(500).json({ error: "Chyba při získávání uživatelů." });
   }
 });
 
-// Get User by Email
-router.get("/:email", async (req, res) => {
+// Získání uživatele podle emailu
+router.get("/getUser/:email", async (req, res) => {
+  console.log("Získávání uživatele podle emailu:", req.params.email);
   const { email } = req.params;
+
+  if (!email) {
+    // Pokud je email null nebo prázdný, neprovádějte další akce
+    return res.status(400).json({ error: "Email musí být zadán." });
+  }
   try {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: "Uživatel nenalezen." });
     }
 
     res.json(user);
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    res.status(500).json({ error: "Internal server error." });
+    console.error("Chyba při získávání uživatelských dat:", error);
+    res.status(500).json({ error: "Chyba serveru." });
   }
 });
 
-// Update User Data (PATCH instead of PUT for partial updates)
+// Aktualizace uživatelských dat
 router.patch("/update", async (req, res) => {
   const { email, akceCalander, Quilltext, todoList } = req.body;
+
   try {
     const user = await UserModel.findOne({ email });
 
+
+    // Log before saving
+console.log('User object before saving:', user);
+
+try {
+  await user.save();
+} catch (saveError) {
+  console.error('Save error:', saveError);
+  res.status(500).json({ error: 'Error saving user data to the database.' });
+}
+
+
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: "Uživatel nenalezen." });
     }
 
-    // Update only the provided fields
-    if (akceCalander) user.akceCalander = akceCalander;
-    if (Quilltext) user.Quilltext = Quilltext;
-    if (todoList) user.todoList = todoList;
+    // Update fields only if provided
+    if (akceCalander !== undefined) user.akceCalander = akceCalander;
+    if (Quilltext !== undefined) user.Quilltext = Quilltext;
+    if (todoList !== undefined) user.todoList = todoList;
 
     await user.save();
-
-    res.json({ message: "User data updated successfully." });
+    res.json({ message: "Uživatelská data byla úspěšně aktualizována." });
   } catch (error) {
-    console.error("Error updating user data:", error);
-    res.status(500).json({ error: "Internal server error during update." });
+    console.error("Chyba při aktualizaci uživatelských dat:", error);
+    res
+      .status(500)
+      .json({ error: "Chyba serveru při aktualizaci uživatelských dat." });
   }
 });
 

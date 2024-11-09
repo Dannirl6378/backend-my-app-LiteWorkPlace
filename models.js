@@ -12,10 +12,9 @@ const UserPasswordModel = mongoose.model("UserPassword", UsersPasswordSchema);
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  akceCalender: [{ type: String }],
-  QuillText: { type: String },
-  toDoList: [{ type: String }],
+  akceCalander: [{ type: String }], 
+  Quilltext: { type: String },     
+  todoList: [{ type: String }],     
 });
 const UserModel = mongoose.model(`UserSchema`, UserSchema);
 
