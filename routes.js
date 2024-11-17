@@ -99,13 +99,6 @@ router.patch("/update", async (req, res) => {
     // Log before saving
 console.log('User object before saving:', user);
 
-try {
-  await user.save();
-} catch (saveError) {
-  console.error('Save error:', saveError);
-  res.status(500).json({ error: 'Error saving user data to the database.' });
-}
-
 
     if (!user) {
       return res.status(404).json({ error: "Uživatel nenalezen." });
