@@ -35,7 +35,7 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
-    console.error("loginUser notfound", user);
+    //console.error("loginUser notfound", user);
 
     if (!user) {
       return res.status(404).json({ error: "Uživatel nenalezen." });
@@ -67,7 +67,7 @@ router.get("/all", async (req, res) => {
 
 // Získání uživatele podle emailu
 router.get("/getUser/:email", async (req, res) => {
-  console.log("Získávání uživatele podle emailu:", req.params.email);
+  //console.log("Získávání uživatele podle emailu:", req.params.email);
   const { email } = req.params;
 
   if (!email) {
@@ -116,6 +116,76 @@ console.log('User object before saving:', user);
     res
       .status(500)
       .json({ error: "Chyba serveru při aktualizaci uživatelských dat." });
+  }
+});
+//toto je pro mazani dat jen dat ne profilu
+router.delete("/deleteData", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ error: "Uživatel nenalezen." });
+    }
+
+    // Verify the password
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Neplatné heslo." });
+    }
+
+    // Remove specific fields from the user
+    if (user.akceCalander) user.akceCalander = undefined;
+    if (user.Quilltext) user.Quilltext = undefined;
+    if (user.todoList) user.todoList = undefined;
+
+    // Save the updated user data
+    await user.save();
+
+    res.status(200).json({ message: "Údaje byly úspěšně odstraněny." });
+  } catch (error) {
+    console.error("Chyba při odstraňování údajů:", error);
+    res.status(500).json({ error: "Chyba při odstraňování údajů." });
+  }
+});
+//toto je pro update dat 
+router.patch("/updateData", async (req, res) => {
+  const { email, newName, newPassword, currentPassword } = req.body;
+
+  try {
+    // Najdi uživatele podle emailu
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: "Uživatel nenalezen." });
+    }
+
+    // Ověření aktuálního hesla
+    const isPasswordValid = await comparePassword(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Neplatné heslo." });
+    }
+
+    // Aktualizuj jméno, pokud je poskytnuto
+    if (newName) {
+      user.name = newName;
+    }
+
+    // Aktualizuj heslo, pokud je poskytnuto
+    if (newPassword) {
+      const hashedPassword = await hashPassword(newPassword);
+      user.password = hashedPassword;
+    }
+
+    // Ulož změny
+    await user.save();
+
+    res.status(200).json({ message: "Údaje byly úspěšně aktualizovány." });
+  } catch (error) {
+    console.error("Chyba při aktualizaci údajů:", error);
+    res.status(500).json({ error: "Chyba při aktualizaci údajů." });
   }
 });
 
