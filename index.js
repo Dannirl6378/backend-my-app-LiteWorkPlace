@@ -14,20 +14,23 @@ if (!PORT || !MONGODB_URL) {
   process.exit(1);
 }
 const allowedOrigins = [
-  'https://lite-work-place-n2sy.vercel.app',
-  'http://localhost:3000', // Pro lokální vývoj
+  "https://lite-work-place-n2sy.vercel.app",
+  "http://localhost:3000", // Pro lokální vývoj
+  "http://localhost:3001",
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS policy blocked this origin.'));
-    }
-  },
-  credentials: true, 
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy blocked this origin."));
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use((req, res, next) => {
   //console.log(`Přijatý požadavek: ${req.method} ${req.url}`);
