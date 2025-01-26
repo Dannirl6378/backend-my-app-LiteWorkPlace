@@ -13,9 +13,21 @@ if (!PORT || !MONGODB_URL) {
   console.error("Chyba: Konfigurační soubor config.env nebyl správně načten.");
   process.exit(1);
 }
+const allowedOrigins = [
+  'https://lite-work-place-n2sy.vercel.app',
+  'http://localhost:3000', // Pro lokální vývoj
+];
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy blocked this origin.'));
+    }
+  },
+  credentials: true, 
+}));
 app.use(express.json());
 app.use((req, res, next) => {
   //console.log(`Přijatý požadavek: ${req.method} ${req.url}`);
