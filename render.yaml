@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: muj-backend
+    env: node
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    region: frankfurt # Nebo jiný region podle preferencí
+    plan: free
