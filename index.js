@@ -16,7 +16,7 @@ if (!PORT || !MONGODB_URL) {
 const allowedOrigins = [
   "https://lite-work-place-n2sy.vercel.app",
   "http://localhost:3000", // Pro lokální vývoj
-  "http://localhost:3001",
+  "http://localhost:3001/api/login",
 ];
 
 app.use(
