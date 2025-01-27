@@ -30,6 +30,17 @@ router.post("/register", async (req, res) => {
   }
 });
 
+router.get("/news", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://newsapi.org/v2/top-headlines?country=us&apiKey=8090b74a249b4dffa71b2748fca0c37f"
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send("Error fetching news");
+  }
+});
+
 // Přihlášení uživatele
 router.post("/login", async (req, res) => {
   try {

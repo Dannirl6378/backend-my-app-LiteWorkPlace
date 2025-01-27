@@ -40,6 +40,7 @@ app.use((req, res, next) => {
 // Připojení routeru pro uživatelské endpointy
 app.use("/api", userRouter);
 
+
 // Připojení k MongoDB
 mongoose.connect(MONGODB_URL, {
   useNewUrlParser: true,
