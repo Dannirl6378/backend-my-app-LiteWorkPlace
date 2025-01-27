@@ -15,7 +15,7 @@ if (!PORT || !MONGODB_URL) {
 }
 const allowedOrigins = [
   "https://lite-work-place-n2sy.vercel.app",
-  "http://localhost:3000", // Pro lokální vývoj
+  "https://localhost:3000", // Pro lokální vývoj
 ];
 
 app.use(
@@ -30,7 +30,6 @@ app.use(
     credentials: true,
   }),
 );
-app.options('*', cors());
 app.use(express.json());
 app.use((req, res, next) => {
   //console.log(`Přijatý požadavek: ${req.method} ${req.url}`);
@@ -39,7 +38,6 @@ app.use((req, res, next) => {
 
 // Připojení routeru pro uživatelské endpointy
 app.use("/api", userRouter);
-
 
 // Připojení k MongoDB
 mongoose.connect(MONGODB_URL, {
