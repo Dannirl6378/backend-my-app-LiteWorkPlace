@@ -53,7 +53,7 @@ router.post("/login", async (req, res) => {
     }
 
     const isPasswordValid = await comparePassword(password, user.password);
-
+    console.log("ispassword",isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Neplatné heslo." });
     }
