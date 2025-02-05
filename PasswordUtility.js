@@ -23,7 +23,7 @@ router.post("/hashPassword", async (req, res) => {
 async function comparePassword(plaintextPassword, email) {
   const user = await UserPasswordModel.findOne({ email });
   if (!user) {
-    return { error: "Uživatel s daným e-mailem nebyl nalezen." };
+    return false;
   }
   const isValidPassword = await bcrypt.compare(plaintextPassword, user.password);
   if (!isValidPassword) {
