@@ -32,7 +32,7 @@ async function comparePassword(plaintextPassword, email) {
     plaintextPassword,
     user.password,
   );
-  console.log("CompareIsPassword", isPasswordValid);
+  console.log("CompareIsPassword", isValidPassword);
   if (!isValidPassword) {
     return { success: false, message: "Neplatné heslo." };
   }
