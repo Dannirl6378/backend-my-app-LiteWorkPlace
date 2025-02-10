@@ -17,10 +17,10 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const newUser = new UserModel({ name, email, password: hashedPassword });
+    const newUser = new UserModel({ name, email});
     await newUser.save();
 
-    const newUserPassword = new UserPasswordModel({ name, email, password });
+    const newUserPassword = new UserPasswordModel({ name, email, password: hashedPassword });
     await newUserPassword.save();
 
     res.status(201).json({ message: "Uživatel byl úspěšně zaregistrován." });
