@@ -54,7 +54,7 @@ router.post("/getUser", async (req, res) => {
 router.post("/comparePassword", async (req, res) => {
   const { password, email } = req.body;
   const user = await UserPasswordModel.findOne({ email });
-
+  console.log("user",user);
   if (!user) {
     return res.status(404).json({ error: "Uživatel nenalezen." });
   }
