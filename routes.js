@@ -52,9 +52,9 @@ router.post("/login", async (req, res) => {
       return res.status(404).json({ error: "Uživatel nenalezen." });
     }
 
-    const isPasswordValid = await comparePassword(password, user.password);
+    const isPasswordValid = await comparePassword(password, user.email);
     console.log("ispassword",isPasswordValid);
-    if (!isPasswordValid) {
+    if (!isPasswordValid.success) {
       return res.status(401).json({ error: "Neplatné heslo." });
     }
 
