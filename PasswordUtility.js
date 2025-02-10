@@ -24,6 +24,7 @@ async function comparePassword(plaintextPassword, email) {
   const user = await UserPasswordModel.findOne({ email });
   console.log("user", user);
   console.log("user.password", user.password);
+  console.log("plaintextPassword",plaintextPassword);
   if (!user) {
     return { success: false, message: "Uživatel nenalezen." };
   }
