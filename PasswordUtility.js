@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './config.env' });
+require("dotenv").config({ path: "./config.env" });
 
 const { UserPasswordModel } = require("./models");
 const bcrypt = require("bcrypt");
@@ -22,10 +22,16 @@ router.post("/hashPassword", async (req, res) => {
 
 async function comparePassword(plaintextPassword, email) {
   const user = await UserPasswordModel.findOne({ email });
+  console.log("user", user);
+  console.log("user.password", user.password);
   if (!user) {
     return { success: false, message: "Uživatel nenalezen." };
   }
-  const isValidPassword = await bcrypt.compare(plaintextPassword, user.password);
+  const isValidPassword = await bcrypt.compare(
+    plaintextPassword,
+    user.password,
+  );
+  console.log("CompareIsPassword", isPasswordValid);
   if (!isValidPassword) {
     return { success: false, message: "Neplatné heslo." };
   }
@@ -54,21 +60,18 @@ router.post("/getUser", async (req, res) => {
 router.post("/comparePassword", async (req, res) => {
   const { password, email } = req.body;
   const user = await UserPasswordModel.findOne({ email });
-  console.log("user",user);
+  console.log("user", user);
   if (!user) {
     return res.status(404).json({ error: "Uživatel nenalezen." });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  
-  
 
   if (isPasswordValid.error) {
-    console.log("CompareIsPassword",isPasswordValid);
     return res.status(401).json({ error: isPasswordValid.error });
   }
 
-  res.json({success:true, message: isPasswordValid.message });
+  res.json({ success: true, message: isPasswordValid.message });
 });
 
 function generateToken(user) {
