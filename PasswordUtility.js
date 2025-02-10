@@ -60,13 +60,14 @@ router.post("/comparePassword", async (req, res) => {
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
+  console.log("CompareIsPassword",isPasswordValid);
   
 
   if (isPasswordValid.error) {
     return res.status(401).json({ error: isPasswordValid.error });
   }
 
-  res.json({ message: isPasswordValid.message });
+  res.json({success:true, message: isPasswordValid.message });
 });
 
 function generateToken(user) {
