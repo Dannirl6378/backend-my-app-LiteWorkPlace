@@ -1,0 +1,86 @@
+⚙️ LiteWorkPlace - Backend API
+Tato část projektu zajišťuje serverovou logiku, správu dat v MongoDB a bezpečnou autentizaci uživatelů. Backend je navržen tak, aby efektivně obsluhoval moduly dashboardu a bezpečně uchovával uživatelská nastavení.
+
+🛠️ Technologický stack
+Runtime: Node.js
+
+Framework: Express.js
+
+Databáze: MongoDB (Mongoose ODM)
+
+Zabezpečení: Bcrypt (hashování hesel) a JWT (autentizace)
+
+Externí API: NewsAPI (pro zprávy na dashboardu)
+
+🔐 Bezpečnost a Architektura
+V projektu je kladen důraz na bezpečnostní standardy:
+
+Password Hashing: Hesla nejsou nikdy ukládána v otevřené formě. Používáme bcrypt s 10 průchody (salt rounds).
+
+Separace modelů: Citlivé údaje (hash hesla) jsou uloženy v separátním modelu UserPasswordModel, aby se předešlo jejich nechtěnému úniku při běžných GET požadavcích na uživatelský profil.
+
+JWT Autentizace: Připravená logika pro generování a ověřování tokenů (expirace 1 hodina) v souboru PasswordUtility.js.
+
+📡 API Endpoints
+
+Metoda,Endpoint,Popis
+POST,/register,Vytvoří uživatele a uloží hash hesla do separátního modelu.
+POST,/login,Ověří přihlašovací údaje proti hashi v DB.
+POST,/comparePassword,Pomocný endpoint pro verifikaci hesla při změnách v profilu.
+
+📊 Správa dat dashboardu
+
+Metoda,Endpoint,Popis
+GET,/getUser/:email,"Vrátí data uživatele (kalendář, úkoly, texty)."
+PATCH,/update,"Aktualizuje pole akceCalander, Quilltext nebo todoList."
+PATCH,/updateData,Změna jména nebo hesla v uživatelském profilu.
+DELETE,/deleteData,"Vymaže obsah panelů, ale zachová uživatelský účet."
+
+Gemini povedal
+Jasně, tady je „čistá“ verze README výhradně pro tvůj backend. Je zaměřená na technickou dokumentaci, strukturu endpointů a bezpečnostní prvky, které jsi v kódu použil.
+
+⚙️ LiteWorkPlace - Backend API
+Tato část projektu zajišťuje serverovou logiku, správu dat v MongoDB a bezpečnou autentizaci uživatelů. Backend je navržen tak, aby efektivně obsluhoval moduly dashboardu a bezpečně uchovával uživatelská nastavení.
+
+🛠️ Technologický stack
+Runtime: Node.js
+
+Framework: Express.js
+
+Databáze: MongoDB (Mongoose ODM)
+
+Zabezpečení: Bcrypt (hashování hesel) a JWT (autentizace)
+
+Externí API: NewsAPI (pro zprávy na dashboardu)
+
+🔐 Bezpečnost a Architektura
+V projektu je kladen důraz na bezpečnostní standardy:
+
+Password Hashing: Hesla nejsou nikdy ukládána v otevřené formě. Používáme bcrypt s 10 průchody (salt rounds).
+
+Separace modelů: Citlivé údaje (hash hesla) jsou uloženy v separátním modelu UserPasswordModel, aby se předešlo jejich nechtěnému úniku při běžných GET požadavcích na uživatelský profil.
+
+JWT Autentizace: Připravená logika pro generování a ověřování tokenů (expirace 1 hodina) v souboru PasswordUtility.js.
+
+📡 API Endpoints
+
+🔑 Autentizace
+
+Metoda	Endpoint	Popis
+POST	/register	Vytvoří uživatele a uloží hash hesla do separátního modelu.
+POST	/login	Ověří přihlašovací údaje proti hashi v DB.
+POST	/comparePassword	Pomocný endpoint pro verifikaci hesla při změnách v profilu.
+
+📊 Správa dat dashboardu
+
+Metoda	Endpoint	Popis
+GET	/getUser/:email	Vrátí data uživatele (kalendář, úkoly, texty).
+PATCH	/update	Aktualizuje pole akceCalander, Quilltext nebo todoList.
+PATCH	/updateData	Změna jména nebo hesla v uživatelském profilu.
+DELETE	/deleteData	Vymaže obsah panelů, ale zachová uživatelský účet.
+
+📰 Ostatní
+
+Metoda,Endpoint,Popis
+GET,/news,Proxy volání na NewsAPI (obchází CORS a skrývá API klíč).
+GET,/all,Výpis všech uživatelů (pouze pro demonstrační účely).
